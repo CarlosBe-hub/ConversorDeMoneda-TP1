@@ -1,51 +1,37 @@
 package com.tech.tp1;
 
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import com.tech.tp1.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
     private MainViewModel viewModel;
-
-    // componentes de la UI
-    private EditText etDolares, etEuros, etNuevaTasa;
-    private TextView tvTasaActual;
-    private RadioButton rbAEuros, rbADolares;
-    private Button btnConvertir, btnCambiarValor;
+    private ActivityMainBinding binding; // usamos binding para acceder a los componentes de la activity main
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        // configuramos el Binding
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         // inicializar ViewModel
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        // vincular componentes de la UI
-        etDolares = findViewById(R.id.etDolares);
-        etEuros = findViewById(R.id.etEuros);
-        etNuevaTasa = findViewById(R.id.etNuevaTasa);
-        tvTasaActual = findViewById(R.id.tvTasaActual);
-        rbAEuros = findViewById(R.id.rbAEuros);
-        rbADolares = findViewById(R.id.rbADolares);
-        btnConvertir = findViewById(R.id.btnConvertir);
-        btnCambiarValor = findViewById(R.id.btnCambiarValor);
-
+       // llamamos a los metodos de la configuracion inicial
         observarViewModel();
         configurarBotones();
     }
 
     private void observarViewModel() {
-        // observar datos del ViewModel y actualizar la UI
-        viewModel.getDolaresResult().observe(this, resultado -> etDolares.setText(resultado));
-        viewModel.getEurosResult().observe(this, resultado -> etEuros.setText(resultado));
-        viewModel.getTasaActual().observe(this, tasa -> tvTasaActual.setText(tasa));
+        // accedemos a los componentes a través de 'binding'
+        viewModel.getDolaresResult().observe(this, resultado -> binding.etDolares.setText(resultado));
+        viewModel.getEurosResult().observe(this, resultado -> binding.etEuros.setText(resultado));
+        viewModel.getTasaActual().observe(this, tasa -> binding.tvTasaActual.setText(tasa));
 
         // mostrar mensajes de error
         viewModel.getMensajeError().observe(this, error -> {
@@ -57,22 +43,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void configurarBotones() {
         // boton para ejecutar la operacion
-        btnConvertir.setOnClickListener(v -> {
-            boolean convertirAEuros = rbAEuros.isChecked();
+        binding.btnConvertir.setOnClickListener(v -> {
+            boolean convertirAEuros = binding.rbAEuros.isChecked();
             String montoAConvertir;
 
             if (convertirAEuros) {
-                montoAConvertir = etDolares.getText().toString();
+                montoAConvertir = binding.etDolares.getText().toString();
             } else {
-                montoAConvertir = etEuros.getText().toString();
+                montoAConvertir = binding.etEuros.getText().toString();
             }
 
             viewModel.realizarConversion(montoAConvertir, convertirAEuros);
         });
 
         // boton para modificar el tipo de cambio
-        btnCambiarValor.setOnClickListener(v -> {
-            String nuevaTasa = etNuevaTasa.getText().toString();
+        binding.btnCambiarValor.setOnClickListener(v -> {
+            String nuevaTasa = binding.etNuevaTasa.getText().toString();
             viewModel.cambiarTasaDeCambio(nuevaTasa);
         });
     }
